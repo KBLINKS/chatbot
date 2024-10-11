@@ -1,0 +1,34 @@
+import os
+from google.cloud import videointelligence
+
+os.environ["GOOGLE_CLOUD_PROJECT"] = "optimal-torch-438217-b8"
+os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "optimal-torch-438217-b8-e8727acfd086.json"
+
+def analyze_video(video_uri):
+    client = videointelligence.VideoIntelligenceServiceClient()
+
+    # Specify the features to extract
+    features = [videointelligence.enums.Feature.LABEL_DETECTION]
+
+    # Create the request
+    operation = client.annotate_video(input_uri=video_uri, features=features)
+
+    # Wait for the operation to complete
+    result = operation.result()
+
+    # Extract labels from the video
+    labels = result.annotation_results[0].segment_classification.segments[0].labels
+
+    return labels
+
+# Get the video URI from the user
+video_uri = "WIN_20241010_17_57_27_Pro.mp4"
+
+# Analyze the video and get labels
+labels = analyze_video(video_uri)
+
+# Processing the labels and generate a response
+response = "Based on the video, I detected the following labels: " + ", ".join([label.category_name for label in labels])
+
+
+print(response)
